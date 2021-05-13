@@ -429,38 +429,12 @@ class Net(BaseFeaturesExtractor):
         x = F.relu(self.fc3(x))
         return x
 
-EED = 17
-NUM_TIMESTEPS = int(1e7)
-EVAL_FREQ = int(1e4)
-EVAL_EPISODES = int(1e2)
-BEST_THRESHOLD = 0.01 # must achieve a mean score above this to replace prev best self
 
-REWARD_LOST = -1
-REWARD_WON = 1
-
-N_CPU = os.cpu_count()
-
-LOGDIR = os.path.join(".","logs","custom_ppo_1")
-MONITOR_LOGS_DIR = os.path.join(LOGDIR,"monitor_logs")
-TB_LOGS_DIR = os.path.join(LOGDIR,"tensorboard_logs")
-MODEL_DIR = os.path.join(LOGDIR,"model")
-CHECKPOINTS_DIR = os.path.join(LOGDIR,"checkpoints")
-
-if not os.path.exists(LOGDIR): 
-    os.makedirs(LOGDIR)
-if not os.path.exists(TB_LOGS_DIR):
-    os.makedirs(TB_LOGS_DIR)
-if not os.path.exists(MONITOR_LOGS_DIR):
-    os.makedirs(MONITOR_LOGS_DIR)
-if not os.path.exists(MODEL_DIR):
-    os.makedirs(MODEL_DIR)
-if not os.path.exists(CHECKPOINTS_DIR):
-    os.makedirs(CHECKPOINTS_DIR)
 
 from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback, BaseCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecTransposeImage
 
-model_name = "ppo1"
+model_name = "ppo1_2ndtry"
 m_env = Monitor(env, model_name, allow_early_resets=True) 
 
 policy_kwargs = dict(
@@ -514,7 +488,7 @@ df.rename(columns = {'r':'Episode Reward', 'l':'Episode Length'}, inplace = True
 plt.figure(figsize=(20,5))
 sns.regplot(data=df, y='Episode Reward', x=np.arange(len(df)))
 
-state_dict = trainer.policy.to('cpu').state_dict()
+state_dict = trainer.policy.state_dict()
 print("\n".join(state_dict.keys())) #use this to check keys ;-)
 
 adapted_state_dict ={

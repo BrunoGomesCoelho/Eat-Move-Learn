@@ -417,7 +417,7 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 
-model_name = "dqnv_1oppponent"
+model_name = "dqnv_1oppponent_2ndtry"
 m_env = Monitor(env, model_name, allow_early_resets=True) 
 
 policy_kwargs = dict(
@@ -484,7 +484,7 @@ sns.regplot(data=df, y='Episode Reward', x=np.arange(len(df)))
 # In[ ]:
 
 
-state_dict = trainer.policy.to('cpu').state_dict()
+state_dict = trainer.policy.state_dict()
 print("\n".join(state_dict.keys())) #use this to check keys ;-)
 
 

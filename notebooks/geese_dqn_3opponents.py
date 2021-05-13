@@ -30,7 +30,7 @@ class ObservationProcessor:
         self.min_food = min_food
         self.previous_action = -1
         self.last_action = -1
-        self.last_min_distance_to_food = self.row s *self.columns  # initial max value to mark no food seen so far
+        self.last_min_distance_to_food = self.rows *self.columns  # initial max value to mark no food seen so far
         self.center_head = center_head
 
     # ***** BEGIN: utility functions ******
@@ -49,7 +49,7 @@ class ObservationProcessor:
         return adjacent_positions(position, self.columns, self.rows)
 
     def _min_distance_to_food(self, position, food=None):
-        food = food if foo d! =None else self.food
+        food = food if food !=None else self.food
         return min_distance(position, food, self.columns)
 
     def _row_col(self, position):
@@ -417,7 +417,7 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 
-model_name = "dqnv_3oppponents"
+model_name = "dqnv_3oppponents_2ndtry"
 m_env = Monitor(env, model_name, allow_early_resets=True)
 
 policy_kwargs = dict(
@@ -483,7 +483,7 @@ sns.regplot(data=df, y='Episode Reward', x=np.arange(len(df)))
 # In[ ]:
 
 
-state_dict = trainer.policy.to('cpu').state_dict()
+state_dict = trainer.policy.state_dict()
 print("\n".join(state_dict.keys()))  # use this to check keys ;-)
 
 # In[ ]:
