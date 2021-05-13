@@ -15,6 +15,7 @@ cd /scratch/zy2043/Eat-Move-Learn/notebooks/
 python geese_dqn_1opponent.py 
 #python geese_dqn_2opponents.py 
 #python geese_dqn_3opponents.py 
-#python geese_dqn_multiopponents.py 
+#python geese_dqn_multiopponents.py
+#python geese_ppo.py
 
 

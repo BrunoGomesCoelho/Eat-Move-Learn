@@ -1,3 +1,5 @@
 torch
 stable-baselines3
 kaggle-environments
+requests
+seaborn

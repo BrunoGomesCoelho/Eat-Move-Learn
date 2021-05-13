@@ -1,6 +1,4 @@
 
-
-
 import gym
 from gym import spaces
 
@@ -267,7 +265,7 @@ class ObservationProcessor:
 #Initial template from: https://stable-baselines.readthedocs.io/en/master/guide/custom_env.html
 class HungryGeeseEnv(gym.Env):
     
-    def __init__(self, dummy_env=False, opponent=['greedy', 'greedy','greedy-goose.py'], action_offset=1, debug=False, defaults=[7,11,10,2]):
+    def __init__(self, dummy_env=False, opponent=['greedy'], action_offset=1, debug=False, defaults=[7,11,10,2]):
         super(HungryGeeseEnv, self).__init__()
         self.num_envs = 1
         self.num_previous_observations = 0
@@ -396,7 +394,7 @@ class HungryGeeseEnv(gym.Env):
 # In[ ]:
 
 
-env = HungryGeeseEnv(opponent=['greedy', 'greedy', 'greedy'], debug=False)
+env = HungryGeeseEnv(opponent=['greedy'], debug=False)
 
 from stable_baselines3.common.env_checker import check_env
 check_env(env)
@@ -419,7 +417,7 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 
-model_name = "dqnv_3oppponents"
+model_name = "dqnv_1oppponent"
 m_env = Monitor(env, model_name, allow_early_resets=True) 
 
 policy_kwargs = dict(
