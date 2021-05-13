@@ -464,7 +464,7 @@ print(trainer.policy)
 # In[ ]:
 
 
-trainer.learn(total_timesteps=10, callback=None)
+trainer.learn(total_timesteps=10000000, callback=None)
 
 
 # In[ ]:
