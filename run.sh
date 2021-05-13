@@ -6,7 +6,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --mem=30GB
 #SBATCH --job-name=geese
-#SBATCH --mail-type=END
+#SBATCH --mail-type=BEGIN,END
 #SBATCH --mail-user=zy2043@nyu.edu
 #SBATCH --output=geese%j.out
 
