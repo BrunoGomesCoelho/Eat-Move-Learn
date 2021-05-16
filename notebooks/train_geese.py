@@ -481,15 +481,16 @@ if __name__ == '__main__':
 
     check_env(env)
 
-    if PPO:
+    if args.ppo:
         algo_name = 'ppo'
     else:
         algo_name = 'dqn'
     model_name = "{}_v_{}oppponents".format(algo_name, N_OPPONENTS)
     if GLOBAL_REWARD:
         model_name += "_globalRew"
-    model_name += "3rdTry"
+    model_name += "4thTry"
     m_env = Monitor(env, model_name, allow_early_resets=True)
+    print('Running experiment with model name: {}'.format(model_name))
 
     if args.ppo:
         net_arch = [64, dict(pi=[32, 16], vf=[32, 16])]
