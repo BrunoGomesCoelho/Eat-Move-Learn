@@ -2,12 +2,60 @@
 import gym
 from gym import spaces
 
+from stable_baselines3 import DQN
+from stable_baselines3.common.monitor import Monitor
+import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
+import torch as th
 from kaggle_environments.envs.hungry_geese.hungry_geese import Observation, Configuration, Action, adjacent_positions, row_col, translate, min_distance
 from kaggle_environments import make
-
+from pdb import set_trace as TT
 from enum import Enum, auto
 import numpy as np
+import argparse
+from stable_baselines3.common.env_checker import check_env
 
+
+
+
+class MultiGeeseWrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+        self.n_episodes = 0
+    #def step(self, action):
+    #   next_state, reward, done, info = self.env.step(action)
+        # modify ...
+    #    return next_state, reward, done, info
+
+    def reset(self):
+        if self.n_episodes % 100 ==0:
+            n_agents = np.random.randint(3)+1
+            opponents = ['greedy'] * n_agents
+            self.env = HungryGeeseEnv(opponent=opponents, debug=False)
+            print('Number of agents: {}'.format(n_agents))
+        self.n_episodes += 1
+        return self.env.reset()
+
+
+# TODO: move this to a separate file, to be imported by all training files when you want to use global reward
+class GlobalRewardWrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        if not done:
+            reward = 0
+        else:
+            # TODO: if I won, reward = 1
+            if not self.env.unwrapped.env.state[0]['status'] == 'DONE':
+                pass
+            else:
+                reward = 0
+        return obs, reward, done, info
 
 class CellState(Enum):
     EMPTY = 0
@@ -391,124 +439,123 @@ class HungryGeeseEnv(gym.Env):
     def render(self, **kwargs):
         self.env.render(**kwargs)
 
+if __name__ == '__main__':
 
-# In[ ]:
-
-
-env = HungryGeeseEnv(opponent=['greedy', 'greedy', 'greedy'], debug=False)
-
-from stable_baselines3.common.env_checker import check_env
-
-check_env(env)
-
-# In[ ]:
-
-
-from stable_baselines3 import DQN
-
-# In[ ]:
-
-
-from stable_baselines3 import DQN
-from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-
-import torch as th
-import torch.nn as nn
-import torch.nn.functional as F
-
-model_name = "dqnv_3oppponents_2ndtry"
-m_env = Monitor(env, model_name, allow_early_resets=True)
-
-policy_kwargs = dict(
-    # net_arch = [2000, 1000, 500, 1000, 500, 100],
-    net_arch=[100, 100, 300, 100, 100, 100, 100, 100],
-    activation_fn=th.nn.ReLU
-)
-
-TRAIN_STEPS = 1e6
-alpha_0 = 1e-6
-alpha_end = 1e-9
+    parser = argparse.ArgumentParser(description='Hungry Jheece.')
+    parser.add_argument(
+        'n_agents',
+        type=int,
+        help='The number of greedy agents against which to play during training. -1 for a curriculum (multi) that changes '
+             'the number of opponents randomly during training.',
+        default=1,
+    )
+    parser.add_argument(
+        'global_reward',
+        action='store_true',
+        help='This will enable a \"global\" reward, which gives the agent its usual, \"local\" reward, only at the end of an '
+        'episode, and only if it is still alive.',
+    )
+    args = parser.parse_args()
+    global N_OPPONENTS
+    global GLOBAL_REWARD
+    N_OPPONENTS = args.n_opponents
+    GLOBAL_REWARD = args.global_reward
 
 
-def learning_rate_f(process_remaining):
-    # default =  1e-4
-    initial = alpha_0
-    final = alpha_end
-    interval = initial - final
-    return final + interval * process_remaining
+    if N_OPPONENTS == -1:
+        n_init_opponents = 1  # in the case of randomized number of opponents, just start with 1 (will be changed later
+                              # anyway
+    else:
+        n_init_opponents = N_OPPONENTS
+    env = HungryGeeseEnv(opponent=['greedy'] * n_init_opponents, debug=False)
+    if N_OPPONENTS == -1:
+        env = MultiOpponentWrapper(env)
+    if GLOBAL_REWARD:
+        env = GlobalRewardWrapper(env)
+
+    check_env(env)
 
 
-params = {
-    'gamma': .9,
-    'batch_size': 100,
-    # 'train_freq': 500,
-    'target_update_interval': 10000,
-    'learning_rate': learning_rate_f,
-    'learning_starts': 1000,
-    'exploration_fraction': .2,
-    'exploration_initial_eps': .05,
-    'tau': 1,
-    'exploration_final_eps': .01,
-    'buffer_size': 100000,
-    'verbose': 2,
-}
+    model_name = "dqnv_{}oppponents".format(N_OPPONENTS)
+    if GLOBAL_REWARD:
+        model_name += "_globalRew"
+    model_name += "3rdTry"
+    m_env = Monitor(env, model_name, allow_early_resets=True)
 
-# coment **params for default parameters
-trainer = DQN('MlpPolicy', m_env, policy_kwargs=policy_kwargs, **params)
+    policy_kwargs = dict(
+        # net_arch = [2000, 1000, 500, 1000, 500, 100],
+        net_arch=[100, 100, 300, 100, 100, 100, 100, 100],
+        activation_fn=th.nn.ReLU
+    )
 
-# You can check policy architecture with:
-# print(trainer.policy.net_arch) #prints: [64, 64] for default DQN policy
-# Or check model.policy
-print(trainer.policy)
-
-# In[ ]:
+    TRAIN_STEPS = 1e6
+    alpha_0 = 1e-6
+    alpha_end = 1e-9
 
 
-trainer.learn(total_timesteps=10000000, callback=None)
-
-# In[ ]:
-
-
-import pandas as pd
-import seaborn as sns
-from matplotlib import pyplot as plt
-
-df = pd.read_csv(f'{model_name}.monitor.csv', header=1, index_col='t')
-
-df.rename(columns={'r': 'Episode Reward', 'l': 'Episode Length'}, inplace=True)
-plt.figure(figsize=(20, 5))
-sns.regplot(data=df, y='Episode Reward', x=np.arange(len(df)))
-
-# In[ ]:
+    def learning_rate_f(process_remaining):
+        # default =  1e-4
+        initial = alpha_0
+        final = alpha_end
+        interval = initial - final
+        return final + interval * process_remaining
 
 
-state_dict = trainer.policy.state_dict()
-print("\n".join(state_dict.keys()))  # use this to check keys ;-)
+    params = {
+        'gamma': .9,
+        'batch_size': 100,
+        # 'train_freq': 500,
+        'target_update_interval': 10000,
+        'learning_rate': learning_rate_f,
+        'learning_starts': 1000,
+        'exploration_fraction': .2,
+        'exploration_initial_eps': .05,
+        'tau': 1,
+        'exploration_final_eps': .01,
+        'buffer_size': 100000,
+        'verbose': 2,
+    }
 
-# In[ ]:
+    # coment **params for default parameters
+    trainer = DQN('MlpPolicy', m_env, policy_kwargs=policy_kwargs, **params)
+
+    # You can check policy architecture with:
+    # print(trainer.policy.net_arch) #prints: [64, 64] for default DQN policy
+    # Or check model.policy
+    print(trainer.policy)
+
+    # In[ ]:
 
 
-adapted_state_dict = {
-    new_key: state_dict[old_key]
-    for old_key in state_dict.keys()
-    for new_key in ["layer" + ".".join(old_key.split(".")[-2:])]  # use last 3 components of name
-    if old_key.find("q_net_target.") != -1  # we only want the policy weights
-}
-print(adapted_state_dict.keys())
-th.save(adapted_state_dict, f'{model_name}.pt')
+    trainer.learn(total_timesteps=10000000, callback=None)
 
-# In[ ]:
+    # In[ ]:
 
 
-state_dict.keys()
-
-# In[ ]:
 
 
-adapted_state_dict.keys()
+    df = pd.read_csv(f'{model_name}.monitor.csv', header=1, index_col='t')
 
-# In[ ]:
+    df.rename(columns={'r': 'Episode Reward', 'l': 'Episode Length'}, inplace=True)
+    plt.figure(figsize=(20, 5))
+    sns.regplot(data=df, y='Episode Reward', x=np.arange(len(df)))
+
+    state_dict = trainer.policy.state_dict()
+    print("\n".join(state_dict.keys()))  # use this to check keys ;-)
+
+    adapted_state_dict = {
+        new_key: state_dict[old_key]
+        for old_key in state_dict.keys()
+        for new_key in ["layer" + ".".join(old_key.split(".")[-2:])]  # use last 3 components of name
+        if old_key.find("q_net_target.") != -1  # we only want the policy weights
+    }
+    print(adapted_state_dict.keys())
+    th.save(adapted_state_dict, f'{model_name}.pt')
+
+    state_dict.keys()
+
+    adapted_state_dict.keys()
+
 
 
 

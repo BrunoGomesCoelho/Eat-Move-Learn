@@ -357,7 +357,7 @@ def my_dqn(observation, configuration):
             weights_changed = True
         elif future_position in obs_prep.dead_ends:
             weights[index] = min(weights[index], 1e-2)  # dead ends
-            weights_changed = Truef
+            weights_changed = True
         elif future_position in obs_prep.adjacent_to_heads:
             weights[index] = min(weights[index], 1e-8)  # adjacent to heads
             weights_changed = True

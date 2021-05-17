@@ -9,6 +9,7 @@ from enum import Enum, auto
 import numpy as np
 
 
+
 class MultiGeeseWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
