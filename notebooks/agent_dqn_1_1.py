@@ -3,6 +3,7 @@ from kaggle_environments import make
 
 import gym
 from gym import spaces
+import argparse
 
 import torch as th
 import torch.nn as nn
@@ -13,6 +14,18 @@ import numpy as np
 import os
 import random as rand
 
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Hungry Jheece Agent.')
+    parser.add_argument(
+        '-mn',
+        '--model_name',
+        type=str,
+        help='The model name file, .pt',
+        default='',
+    )
+    args = parser.parse_args()
+    model_name = args.model_name
 
 class CellState(Enum):
     EMPTY = 0
@@ -282,7 +295,7 @@ def my_dqn(observation, configuration):
     #normal_agent_path = '/kaggle/working'
     tgz_agent_path = './'
     normal_agent_path = './'
-    model_name = "dqnv_1oppponent_2ndtry"
+    #model_name = "dqnv_1oppponent_2ndtry"
     num_previous_observations = 0
     epsilon = 0
     init = False
@@ -307,7 +320,7 @@ def my_dqn(observation, configuration):
         last_action = -1
         last_observation = []
         previous_observation = []
-        
+
         file_name = os.path.join(normal_agent_path, f'{model_name}.pt')
         if not os.path.exists(file_name):
             file_name = os.path.join(tgz_agent_path, f'{model_name}.pt')

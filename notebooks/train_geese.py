@@ -558,7 +558,7 @@ if __name__ == '__main__':
     # Save a checkpoint every 1000 steps
     checkpoint_callback = CheckpointCallback(save_freq=100000, save_path='./logs/',
                                              name_prefix=model_name)
-    trainer.learn(total_timesteps=20000000, callback=checkpoint_callback)
+    trainer.learn(total_timesteps=1000, callback=checkpoint_callback)
 
     df = pd.read_csv(f'{model_name}.monitor.csv', header=1, index_col='t')
 
