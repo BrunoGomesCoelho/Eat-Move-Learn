@@ -406,28 +406,7 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 
-import os
-log_dir = "log/"
-os.makedirs(log_dir, exist_ok=True)
 
-# Logging progress
-#env = Monitor(env, log_dir, allow_early_resets=True)
-
-#env = DummyVecEnv([lambda: env])
-
-class Net(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 512):
-        super(Net, self).__init__(observation_space, features_dim)
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
-        self.fc3 = nn.Linear(384, features_dim)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = nn.Flatten()(x)
-        x = F.relu(self.fc3(x))
-        return x
 
 
 
