@@ -3,6 +3,7 @@ from kaggle_environments import make
 
 import gym
 from gym import spaces
+import argparse
 
 import torch as th
 import torch.nn as nn
@@ -12,7 +13,6 @@ from enum import Enum, auto
 import numpy as np
 import os
 import random as rand
-
 
 class CellState(Enum):
     EMPTY = 0
@@ -282,7 +282,19 @@ def my_dqn(observation, configuration):
     #normal_agent_path = '/kaggle/working'
     tgz_agent_path = './'
     normal_agent_path = './'
-    model_name = "dqnv1"
+
+
+    #parser = argparse.ArgumentParser(description='Hungry Jheece Agent.')
+    #parser.add_argument(
+     #   '-mn',
+     #   '--model_name',
+     #   type=str,
+      #  help='The model name file, .pt',
+       # default='',
+    #)
+    #args = parser.parse_args()
+    #model_name = os.path.join('Data', args.model_name)
+    model_name =  os.path.join('Data','dqn_v_1oppponents4thTry')
     num_previous_observations = 0
     epsilon = 0
     init = False
@@ -307,7 +319,7 @@ def my_dqn(observation, configuration):
         last_action = -1
         last_observation = []
         previous_observation = []
-        
+
         file_name = os.path.join(normal_agent_path, f'{model_name}.pt')
         if not os.path.exists(file_name):
             file_name = os.path.join(tgz_agent_path, f'{model_name}.pt')
@@ -370,8 +382,8 @@ def my_dqn(observation, configuration):
         elif future_position in obs_prep.adjacent_to_heads:
             weights[index] = min(weights[index],1e-8) #adjacent to heads
             weights_changed = True
-    
-    
+
+
     
     if debug and weights_changed:
         print(aux_observation)
@@ -393,4 +405,4 @@ def my_dqn(observation, configuration):
     #          f'previous={Action(last_action).name}, opposite={Action(obs_prep.opposite(Action(last_action)).value).name}') 
     
     last_action = prediction
-    return action_predicted #return action
+    return action_predicted#return action
