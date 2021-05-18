@@ -14,19 +14,6 @@ import numpy as np
 import os
 import random as rand
 
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser(description='Hungry Jheece Agent.')
-    parser.add_argument(
-        '-mn',
-        '--model_name',
-        type=str,
-        help='The model name file, .pt',
-        default='',
-    )
-    args = parser.parse_args()
-    model_name = args.model_name
-
 class CellState(Enum):
     EMPTY = 0
     FOOD = auto()
@@ -295,7 +282,19 @@ def my_dqn(observation, configuration):
     #normal_agent_path = '/kaggle/working'
     tgz_agent_path = './'
     normal_agent_path = './'
-    #model_name = "dqnv_1oppponent_2ndtry"
+
+
+    #parser = argparse.ArgumentParser(description='Hungry Jheece Agent.')
+    #parser.add_argument(
+     #   '-mn',
+     #   '--model_name',
+     #   type=str,
+      #  help='The model name file, .pt',
+       # default='',
+    #)
+    #args = parser.parse_args()
+    #model_name = os.path.join('Data', args.model_name)
+    model_name =  os.path.join('Data','dqn_v_1oppponents4thTry')
     num_previous_observations = 0
     epsilon = 0
     init = False

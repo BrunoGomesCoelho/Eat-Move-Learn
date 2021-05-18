@@ -274,7 +274,7 @@ def my_dqn(observation, configuration):
     # normal_agent_path = '/kaggle/working'
     tgz_agent_path = './'
     normal_agent_path = './'
-    model_name = "ppo1_2ndtry"
+    model_name =  os.path.join('Data',"ppo_v_1oppponents4thTry")
     num_previous_observations = 0
     epsilon = 0
     init = False
